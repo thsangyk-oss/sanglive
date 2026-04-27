@@ -2,7 +2,7 @@
 
 SangLive là ứng dụng livestream YouTube tối ưu CPU cho phòng tư vấn/phẫu thuật. Trình duyệt chỉ làm giao diện điều khiển, còn FFmpeg đọc camera Windows trực tiếp bằng DirectShow và đẩy RTMP lên YouTube.
 
-![SangLive hero](docs/readme-hero.png)
+![SangLive hero](docs/sanglive-readme-hero.png)
 
 ## Cài đặt nhanh
 
