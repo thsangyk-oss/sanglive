@@ -23,7 +23,7 @@ const logoOverlayVersion = 'rgba-v2';
 loadEnvironment();
 
 const app = express();
-const port = Number(process.env.PORT || 4111);
+const port = Number(process.env.PORT || 8788);
 let ffmpegBin = process.env.FFMPEG_PATH || ffmpegStatic || 'ffmpeg';
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
@@ -199,8 +199,8 @@ app.post('/auth/logout', async (_req, res) => {
 app.post('/api/create-broadcast', async (req, res) => {
   if (!youtubeClient) return res.status(401).json({ ok: false, error: 'Chưa đăng nhập YouTube OAuth.' });
 
-  const title = String(req.body.title || 'XAlive Lite Stream').trim();
-  const description = String(req.body.description || 'Livestream bởi XAlive Lite').trim();
+  const title = String(req.body.title || 'SangLive Stream').trim();
+  const description = String(req.body.description || 'Livestream bởi SangLive').trim();
   const privacyStatus = pickString(req.body.privacyStatus, ['public', 'unlisted', 'private'], 'unlisted');
   const latencyPreference = pickString(req.body.latencyPreference, ['normal', 'low', 'ultraLow'], 'low');
   const videoConfig = normalizeVideoConfig(req.body.videoConfig || req.body);
@@ -388,8 +388,8 @@ app.get('*', (_req, res) => {
 });
 
 const server = app.listen(port, () => {
-  console.log(`[Lite] XAlive-lite running at http://localhost:${port}`);
-  console.log(`[Lite] FFmpeg: ${ffmpegBin}`);
+  console.log(`[SangLive] running at http://localhost:${port}`);
+  console.log(`[SangLive] FFmpeg: ${ffmpegBin}`);
 });
 
 await initGoogleAuth();
@@ -556,7 +556,7 @@ async function startStreamProcess(config, reason) {
   restartingStream = false;
   if (restartCount > 0) lastError = '';
 
-  console.log(`[Lite] Starting ${config.width}x${config.height}@${config.fps} ${config.bitrate}kbps encoder=${config.encoder} reason=${reason}`);
+  console.log(`[SangLive] Starting ${config.width}x${config.height}@${config.fps} ${config.bitrate}kbps encoder=${config.encoder} reason=${reason}`);
   appendLiveLog('SPAWN', { reason, encoder: config.encoder, restartCount });
   streamProc = spawn(ffmpegBin, args, { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe', 'pipe'] });
   attachStreamProcessHandlers(streamProc, config);
@@ -599,14 +599,14 @@ function attachStreamProcessHandlers(proc, config) {
     if (streamProc === proc) streamProc = null;
     lastError = err.message;
     appendLiveLog('PROCESS_ERROR', { error: err.message });
-    handleProcessExit(1, config, err.message).catch(e => console.error('[Lite] handleProcessExit error:', e));
+    handleProcessExit(1, config, err.message).catch(e => console.error('[SangLive] handleProcessExit error:', e));
   });
 
   proc.on('close', (code) => {
-    console.log(`[Lite] FFmpeg exited code=${code}`);
+    console.log(`[SangLive] FFmpeg exited code=${code}`);
     appendLiveLog('PROCESS_CLOSE', { code, stoppingStream, desiredStreaming, restartCount });
     if (streamProc === proc) streamProc = null;
-    handleProcessExit(code, config, lastRestartReason || lastError).catch(e => console.error('[Lite] handleProcessExit error:', e));
+    handleProcessExit(code, config, lastRestartReason || lastError).catch(e => console.error('[SangLive] handleProcessExit error:', e));
   });
 }
 
@@ -809,7 +809,7 @@ async function preferSystemFfmpegForDirectShow() {
     if (hasDirectShowDeviceOutput(systemText)) {
       ffmpegBin = 'ffmpeg';
       encoderCache = null;
-      console.log('[Lite] Switched to system FFmpeg for DirectShow support');
+      console.log('[SangLive] Switched to system FFmpeg for DirectShow support');
     }
   } catch {}
 }
@@ -1283,7 +1283,7 @@ function loadEnvironment() {
   dotenv.config({ path: path.join(rootDir, '.env') });
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) return;
 
-  const referenceEnv = path.resolve(rootDir, '..', 'xalive', '.env');
+  const referenceEnv = path.resolve(rootDir, '..', 'sanglive', '.env');
   if (existsSync(referenceEnv)) dotenv.config({ path: referenceEnv, override: false });
 }
 

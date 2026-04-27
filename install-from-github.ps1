@@ -1,13 +1,13 @@
 param(
-  [string]$InstallDir = (Join-Path $env:LOCALAPPDATA 'XAlive-lite')
+  [string]$InstallDir = (Join-Path $env:LOCALAPPDATA 'SangLive')
 )
 
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 
-$repoZip = 'https://github.com/thsangyk-oss/xalive-lite/archive/refs/heads/main.zip'
-$tempRoot = Join-Path $env:TEMP ('xalive-lite-install-' + [guid]::NewGuid().ToString('N'))
-$zipPath = Join-Path $tempRoot 'xalive-lite.zip'
+$repoZip = 'https://github.com/thsangyk-oss/sanglive/archive/refs/heads/main.zip'
+$tempRoot = Join-Path $env:TEMP ('sanglive-install-' + [guid]::NewGuid().ToString('N'))
+$zipPath = Join-Path $tempRoot 'sanglive.zip'
 $extractPath = Join-Path $tempRoot 'extract'
 
 function Assert-Node {
@@ -22,7 +22,7 @@ New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
 
 try {
   Assert-Node
-  Write-Host "Downloading XAlive Lite from $repoZip"
+  Write-Host "Downloading SangLive from $repoZip"
   Invoke-WebRequest -Uri $repoZip -OutFile $zipPath -UseBasicParsing
 
   Write-Host 'Extracting package...'
@@ -37,11 +37,11 @@ try {
   if (-not (Test-Path $installer)) { throw 'install.ps1 not found after extraction.' }
 
   & powershell -NoProfile -ExecutionPolicy Bypass -File $installer
-  if ($LASTEXITCODE -ne 0) { throw 'XAlive Lite installer failed.' }
+  if ($LASTEXITCODE -ne 0) { throw 'SangLive installer failed.' }
 
   Write-Host ''
   Write-Host 'Install complete.'
-  Write-Host 'Use the Desktop shortcut named "XAlive Lite" to start the app.'
+  Write-Host 'Use the Desktop shortcut named "SangLive" to start the app.'
 } finally {
   Remove-Item $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
 }

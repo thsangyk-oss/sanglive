@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 $root = $PSScriptRoot
-$shortcutName = 'XAlive Lite.lnk'
+$shortcutName = 'SangLive.lnk'
 $desktopPaths = @(
   [Environment]::GetFolderPath('Desktop'),
   (Join-Path $env:USERPROFILE 'Desktop'),
@@ -35,7 +35,7 @@ function Create-Shortcut {
   $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$launcherPath`""
   $shortcut.WorkingDirectory = $root
   if (Test-Path $iconPath) { $shortcut.IconLocation = $iconPath }
-  $shortcut.Description = 'Start XAlive Lite backend and open frontend'
+  $shortcut.Description = 'Start SangLive backend and open frontend'
   $shortcut.Save()
 }
 
@@ -60,4 +60,4 @@ if (-not $NoShortcut) {
   }
 }
 
-Write-Host 'Cài đặt hoàn tất. Bấm shortcut XAlive Lite trên Desktop để chạy.'
+Write-Host 'Cài đặt hoàn tất. Bấm shortcut SangLive trên Desktop để chạy.'

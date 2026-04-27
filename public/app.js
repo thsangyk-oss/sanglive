@@ -361,7 +361,7 @@ async function validateConfig() {
 
 function showModal() {
   els.liveTitle.value = getPatientTitle();
-  els.liveDesc.value = 'Livestream bởi XAlive Lite';
+  els.liveDesc.value = 'Livestream bởi SangLive';
   els.modal.classList.remove('hidden');
   els.modalConfirm.disabled = false;
   els.modalConfirm.textContent = 'Tạo live và stream';
@@ -786,7 +786,7 @@ function getSettingsObj() {
 
 function saveSettings() {
   const obj = getSettingsObj();
-  localStorage.setItem('xalive-lite-settings', JSON.stringify(obj));
+  localStorage.setItem('sanglive-settings', JSON.stringify(obj));
   if (saveSettingsTimer) clearTimeout(saveSettingsTimer);
   saveSettingsTimer = setTimeout(() => {
     saveSettingsTimer = null;
@@ -802,14 +802,14 @@ async function loadBackendSettings() {
   try {
     const data = await fetchJson('/api/settings');
     if (data.ok && data.settings && Object.keys(data.settings).length) {
-      localStorage.setItem('xalive-lite-settings', JSON.stringify(data.settings));
+      localStorage.setItem('sanglive-settings', JSON.stringify(data.settings));
     }
   } catch {}
 }
 
 function restoreSettings() {
   let settings = {};
-  try { settings = JSON.parse(localStorage.getItem('xalive-lite-settings') || '{}'); } catch {}
+  try { settings = JSON.parse(localStorage.getItem('sanglive-settings') || '{}'); } catch {}
   if (settings.preset && [...els.preset.options].some(option => option.value === settings.preset)) els.preset.value = settings.preset;
   if (settings.resolution && [...els.resolution.options].some(option => option.value === settings.resolution)) els.resolution.value = settings.resolution;
   if (settings.fps && [...els.fps.options].some(option => option.value === settings.fps)) els.fps.value = settings.fps;

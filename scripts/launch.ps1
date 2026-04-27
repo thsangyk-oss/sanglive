@@ -1,5 +1,5 @@
 param(
-  [int]$Port = 4111,
+  [int]$Port = 8788,
   [switch]$NoBrowser
 )
 
@@ -9,7 +9,7 @@ $root = Split-Path -Parent $PSScriptRoot
 $url = "http://localhost:$Port"
 $env:PORT = [string]$Port
 
-function Stop-XAliveListeners {
+function Stop-SangLiveListeners {
   param([int]$LocalPort)
 
   $connections = Get-NetTCPConnection -LocalPort $LocalPort -State Listen -ErrorAction SilentlyContinue
@@ -46,7 +46,7 @@ function Test-BackendOnline {
 }
 
 function Start-Backend {
-  Write-Host "Starting XAlive Lite at $url"
+  Write-Host "Starting SangLive at $url"
   $nodeProcess = Start-Process -FilePath 'node' -ArgumentList @('server/index.js') -WorkingDirectory $root -WindowStyle Minimized -PassThru
   Start-Sleep -Seconds 2
 
@@ -54,7 +54,7 @@ function Start-Backend {
     throw "Backend dừng ngay sau khi start. Exit code: $($nodeProcess.ExitCode)"
   }
 
-  Write-Host "XAlive Lite is running. PID: $($nodeProcess.Id)"
+  Write-Host "SangLive is running. PID: $($nodeProcess.Id)"
 }
 
 function Open-Frontend {
@@ -78,6 +78,6 @@ if (Test-BackendOnline -StatusUrl "$url/api/status") {
   exit 0
 }
 
-Stop-XAliveListeners -LocalPort $Port
+Stop-SangLiveListeners -LocalPort $Port
 Start-Backend
 Open-Frontend
