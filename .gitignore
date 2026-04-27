@@ -1,0 +1,7 @@
+node_modules/
+.env
+.tokens.json
+.runtime/
+logs/
+*.log
+npm-debug.log*

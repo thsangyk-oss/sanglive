@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XAlive Lite - Studio Livestream YouTube</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="/logo.png?v=xalive" />
+  <link rel="shortcut icon" href="/sanglive.ico" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div id="app">
+    <main id="preview-area">
+      <div class="top-bar">
+        <div class="brand">
+          <img class="brand-mark" src="/logo.png?v=xalive" alt="XAlive Logo" />
+          <div>
+            <div class="brand-name">XAlive Lite</div>
+            <div class="brand-subtitle">DirectShow lên YouTube</div>
+          </div>
+        </div>
+
+        <div class="top-bar-center">
+          <div id="stream-status" class="status-badge status-idle">
+            <span class="status-dot"></span>
+            <span id="status-text" class="status-text">Sẵn sàng</span>
+          </div>
+          <div id="stream-timer" class="stream-timer">00:00:00</div>
+          <span id="stat-fps" class="stat-item">-- fps</span>
+          <span id="stat-bitrate" class="stat-item">-- kbps</span>
+          <span id="stat-speed" class="stat-item">-- tốc độ</span>
+        </div>
+
+        <div id="live-link-box" class="live-link-box hidden">
+          <span class="live-link-label">LIVE</span>
+          <a id="live-link-url" class="live-link-url" href="#" target="_blank" rel="noopener"></a>
+          <button id="copy-link-btn" class="btn-icon" type="button" title="Sao chép link">Sao chép</button>
+        </div>
+      </div>
+
+      <section class="preview-stage">
+        <div class="preview-frame">
+          <video id="local-preview-video" class="local-preview-video hidden" autoplay muted playsinline></video>
+          <img id="local-preview-logo" class="local-preview-logo hidden" src="/overlay-logo.png" alt="Logo" />
+          <div id="local-preview-patient" class="local-preview-patient hidden"></div>
+          <img id="preview-image" class="preview-image hidden" alt="Preview camera" />
+          <div id="preview-badge" class="preview-badge">XEM TRƯỚC</div>
+          <div class="signal-grid" aria-hidden="true"></div>
+          <div class="preview-content">
+            <p class="preview-kicker">CHẾ ĐỘ CPU THẤP</p>
+            <h1>DirectShow trực tiếp</h1>
+            <p id="preview-device-text">Chọn camera DirectShow trong sidebar phải để FFmpeg đọc trực tiếp từ Windows.</p>
+            <div class="preview-metrics">
+              <div><span>Nguồn</span><strong id="preview-source">--</strong></div>
+              <div><span>Đầu ra</span><strong id="preview-output">1280x720@30</strong></div>
+              <div><span>Mã hóa</span><strong id="preview-encoder">Auto GPU</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="log-dock">
+          <div class="log-header">
+            <span>Log FFmpeg</span>
+            <span id="log-state">idle</span>
+          </div>
+          <pre id="log-box"></pre>
+        </aside>
+      </section>
+    </main>
+
+    <aside id="sidebar">
+      <div class="sidebar-section">
+        <h3 class="section-title">Nguồn phát</h3>
+        <div class="source-row">
+          <span class="source-name">Camera</span>
+          <select id="video-device" class="source-select" required>
+            <option value="">Đang tải camera...</option>
+          </select>
+          <div id="video-indicator" class="source-indicator"></div>
+        </div>
+        <button id="refresh-btn" class="btn btn-ghost btn-block" type="button">Làm mới thiết bị</button>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="section-title">Âm thanh</h3>
+        <div class="source-row">
+          <span class="source-name">Nguồn</span>
+          <select id="audio-device" class="source-select">
+            <option value="">Không dùng audio / tạo silence</option>
+          </select>
+          <div id="audio-indicator" class="source-indicator"></div>
+        </div>
+        <div class="audio-level-wrap">
+          <div id="audio-level-fill" class="audio-level-fill"></div>
+        </div>
+        <p id="audio-meter-text" class="hint-text">Level: -- dB</p>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="section-title">Chữ trên video</h3>
+        <div class="field-group">
+          <label class="field-label" for="patient-name">Tên bệnh nhân và chẩn đoán</label>
+          <input id="patient-name" class="field-input" type="text" maxlength="120" autocomplete="off" placeholder="VD: Nguyễn Văn A - Chẩn đoán..." />
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-title-row">
+          <h3 class="section-title">Kết nối YouTube</h3>
+          <button id="key-toggle-corner" class="btn-icon key-corner-btn" type="button" title="Nhập stream key thủ công" aria-label="Nhập stream key thủ công">🔑</button>
+        </div>
+
+        <div id="panel-oauth" class="auth-panel">
+          <div id="oauth-login-area">
+            <button id="oauth-login-btn" class="btn btn-google" type="button">Đăng nhập Google</button>
+            <p id="oauth-hint" class="oauth-hint">Dùng credentials từ file .env của project xalive nếu Lite chưa có .env.</p>
+          </div>
+          <div id="oauth-user-area" class="oauth-user-area hidden">
+            <img id="oauth-avatar" class="oauth-avatar" src="" alt="" />
+            <div class="oauth-user-details">
+              <span id="oauth-name" class="oauth-name"></span>
+              <span id="oauth-email" class="oauth-email"></span>
+            </div>
+            <button id="oauth-logout-btn" class="btn-icon btn-sm-icon" type="button" title="Đăng xuất" aria-label="Đăng xuất">×</button>
+          </div>
+        </div>
+
+        <div id="panel-manual" class="auth-panel manual-key-panel hidden">
+          <div class="field-group">
+            <label class="field-label" for="stream-key">YouTube Stream Key</label>
+            <div class="key-input-wrapper">
+              <input id="stream-key" class="field-input" type="password" autocomplete="off" placeholder="xxxx-xxxx-xxxx-xxxx" />
+              <button id="toggle-key" class="btn-icon" type="button">Hiện</button>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="rtmp-url">RTMP URL tùy chọn</label>
+            <input id="rtmp-url" class="field-input" type="text" autocomplete="off" placeholder="rtmps://a.rtmp.youtube.com/live2/KEY" />
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="section-title">Chất lượng</h3>
+        <div class="field-group">
+          <label class="field-label" for="preset">Preset</label>
+          <select id="preset" class="field-input">
+            <option value="consultation">Tư vấn - 720p30, 2000 kbps</option>
+            <option value="surgery">Phẫu thuật - 1080p60, 5000 kbps</option>
+            <option value="custom">Tùy chỉnh</option>
+          </select>
+        </div>
+
+        <div class="quality-grid" id="custom-grid">
+          <div class="field-group">
+            <label class="field-label" for="resolution">Độ phân giải</label>
+            <select id="resolution" class="field-input">
+              <option value="854x480">480p - rất nhẹ</option>
+              <option value="1280x720" selected>720p - cân bằng</option>
+              <option value="1920x1080">1080p - sắc nét</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="fps">FPS</label>
+            <select id="fps" class="field-input">
+              <option value="25">25 fps</option>
+              <option value="30" selected>30 fps</option>
+              <option value="50">50 fps</option>
+              <option value="60">60 fps</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="bitrate">Bitrate: <strong id="bitrate-value">2000</strong> kbps</label>
+          <input id="bitrate" class="bitrate-slider" type="range" min="1000" max="12000" step="250" value="2000" />
+          <div class="bitrate-labels"><span>1000</span><span>12000</span></div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="encoder">Encoder</label>
+          <select id="encoder" class="field-input">
+            <option value="auto">Auto GPU nếu có</option>
+            <option value="h264_nvenc">NVIDIA NVENC</option>
+            <option value="h264_qsv">Intel Quick Sync</option>
+            <option value="h264_amf">AMD AMF</option>
+            <option value="libx264">CPU libx264</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="latency-select">Độ trễ OAuth</label>
+          <select id="latency-select" class="field-input">
+            <option value="normal">Normal</option>
+            <option value="low" selected>Low</option>
+            <option value="ultraLow">Ultra Low</option>
+          </select>
+        </div>
+
+        <div class="resolution-info">
+          <span id="resolution-badge" class="res-badge">720p</span>
+          <span id="fps-badge" class="res-badge">30fps</span>
+          <span id="latency-badge" class="res-badge" data-latency="low">Low</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section stats-section">
+        <h3 class="section-title">Thông số live</h3>
+        <div class="stats-grid">
+          <div><span>Preset</span><strong id="stat-preset">--</strong></div>
+          <div><span>Đầu ra</span><strong id="stat-output">--</strong></div>
+          <div><span>Thời gian</span><strong id="stat-time">00:00:00</strong></div>
+          <div><span>Khung hình</span><strong id="stat-frame">--</strong></div>
+        </div>
+        <div id="message" class="message hidden"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="section-title">Logo phát sóng</h3>
+        <div class="logo-upload-row">
+          <div id="logo-preview-wrap" class="logo-preview-wrap">
+            <img id="logo-preview-img" class="logo-preview-img hidden" alt="Logo" />
+            <span id="logo-preview-placeholder" class="logo-preview-placeholder">Không có</span>
+          </div>
+          <div class="logo-actions">
+            <button id="upload-logo-btn" class="btn btn-ghost btn-block" type="button">Đổi logo</button>
+            <button id="clear-logo-btn" class="btn btn-ghost btn-block hidden" type="button">Dùng mặc định</button>
+            <input id="logo-file-input" class="hidden" type="file" accept="image/png,image/jpeg,image/gif,image/webp" />
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="stop-btn" class="btn btn-stop hidden" type="button">Dừng stream</button>
+        <button id="start-btn" class="btn btn-stream btn-start" type="button">
+          <span class="btn-icon-text">▶</span>
+          <span class="btn-label">BẮT ĐẦU STREAM</span>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <div id="live-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Cài đặt livestream OAuth</h2>
+        <button id="modal-close" class="btn-icon modal-close-btn" type="button" aria-label="Đóng">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="field-group">
+          <label class="field-label" for="live-title">Tiêu đề</label>
+          <input id="live-title" class="field-input" type="text" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="live-desc">Mô tả</label>
+          <textarea id="live-desc" class="field-input field-textarea" rows="3"></textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Quyền riêng tư</label>
+          <div class="privacy-options">
+            <label class="privacy-option"><input type="radio" name="privacy" value="public" /><span>Công khai</span></label>
+            <label class="privacy-option"><input type="radio" name="privacy" value="unlisted" checked /><span>Không liệt kê</span></label>
+            <label class="privacy-option"><input type="radio" name="privacy" value="private" /><span>Riêng tư</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="modal-cancel" class="btn btn-ghost" type="button">Hủy</button>
+        <button id="modal-confirm" class="btn btn-live" type="button">Tạo live và stream</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="patient-required-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Thiếu Tên bệnh nhân và chẩn đoán</h2>
+        <button id="patient-modal-close" class="btn-icon modal-close-btn" type="button" aria-label="Đóng">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="field-group">
+          <label class="field-label" for="patient-modal-input">Tên bệnh nhân và chẩn đoán</label>
+          <input id="patient-modal-input" class="field-input" type="text" maxlength="120" autocomplete="off" placeholder="VD: Nguyễn Văn A - Chẩn đoán..." />
+        </div>
+        <div id="patient-modal-message" class="message hidden"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="patient-modal-cancel" class="btn btn-ghost" type="button">Hủy</button>
+        <button id="patient-modal-confirm" class="btn btn-live" type="button">Tiếp tục live</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
