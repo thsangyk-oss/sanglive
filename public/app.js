@@ -521,6 +521,8 @@ function renderStatus(data) {
   els.logBox.textContent = data.lastLog || '';
   renderMeter(data.audio || { level: 0 });
   renderPreviewAvailability(data.preview?.available && running);
+  if (data.liveWatchUrl) showLiveLink(data.liveWatchUrl);
+  else hideLiveLink();
 
   if (!running) renderMeter({ level: 0 });
   if (data.lastError && (!running || restarting || waitingForDevice)) showMessage(data.lastError, (restarting || waitingForDevice) ? 'info' : 'error');
@@ -781,6 +783,7 @@ function getSettingsObj() {
     streamKey: els.streamKey.value,
     rtmpUrl: els.rtmpUrl.value,
     authMode: authMode === 'manual' ? 'manual' : 'oauth',
+    liveWatchUrl: lastWatchUrl,
   };
 }
 
@@ -821,6 +824,7 @@ function restoreSettings() {
   if (settings.latency && [...els.latency.options].some(option => option.value === settings.latency)) els.latency.value = settings.latency;
   if (settings.streamKey) els.streamKey.value = settings.streamKey;
   if (settings.rtmpUrl) els.rtmpUrl.value = settings.rtmpUrl;
+  if (settings.liveWatchUrl) showLiveLink(settings.liveWatchUrl);
   setAuthMode(settings.authMode === 'manual' ? 'manual' : 'oauth');
 }
 

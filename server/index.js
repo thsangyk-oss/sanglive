@@ -246,9 +246,11 @@ app.post('/api/create-broadcast', async (req, res) => {
     });
 
     const info = liveStream.data.cdn.ingestionInfo || {};
+    const watchUrl = `https://www.youtube.com/watch?v=${broadcast.data.id}`;
     currentBroadcast = {
       broadcastId: broadcast.data.id,
       streamId: liveStream.data.id,
+      watchUrl,
     };
 
     res.json({
@@ -256,7 +258,7 @@ app.post('/api/create-broadcast', async (req, res) => {
       streamKey: info.streamName,
       rtmpUrl: info.ingestionAddress,
       broadcastId: broadcast.data.id,
-      watchUrl: `https://www.youtube.com/watch?v=${broadcast.data.id}`,
+      watchUrl,
     });
   } catch (err) {
     console.error('[YouTube] Create broadcast error:', err.response?.data || err.message);
@@ -417,6 +419,7 @@ function getStatus() {
     lastLog: lastLog.slice(-4000),
     logFile: currentLogPath,
     logName: currentLogName,
+    liveWatchUrl: active ? currentBroadcast?.watchUrl || '' : '',
   };
 }
 
